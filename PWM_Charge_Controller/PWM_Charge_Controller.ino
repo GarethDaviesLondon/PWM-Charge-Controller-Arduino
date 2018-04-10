@@ -9,7 +9,7 @@
 #define CHARGEPUMP_PWM_A 11 //Pin generating the charge pump PWM
 #define CHARGEPUMP_PWM_B 3  //Pin generating the inverse charge pump PWM
 #define CHARGEWAVEFORM 8    //This is the pin generating the charge waveform
-
+#define WAIT_TIME 2000
 
 void setup() {
   Serial.begin(9600);     //Enable serial monitor line
@@ -39,8 +39,8 @@ void setup() {
 void loop() {
 
   digitalWrite(CHARGEWAVEFORM,HIGH);
-  delay(500);
+  delay(WAIT_TIME);
   digitalWrite(CHARGEWAVEFORM,LOW);
-  delay(500);
+  delay(WAIT_TIME);
 
 }
