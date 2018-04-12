@@ -4,20 +4,20 @@
 #include "PWMLibs.h"
 
 ///GLOBALS
- ChargePumpPWM Mosfet_Highside (CHARGEPUMP_PWM_A,CHARGEPUMP_PWM_B); //Definitions of pins are found in PWM_Charge_Controller.h
+ ChargePumpPWM Mosfet_Gate_Driver (CHARGEPUMP_PWM_A,CHARGEPUMP_PWM_B); //Definitions of pins are found in PWM_Charge_Controller.h
 
 
 void WakeUp()
 //This starts up the controller ready to work.
 {
     //Startup the Charge Pump PWM signal
-    Mosfet_Highside.On();
+    Mosfet_Gate_Driver.On();
 }
 
 void Sleep()
 //This puts the Arduino into a low power mode, shuts of the charging circuit.
 {
-    Mosfet_Highside.Off();
+    Mosfet_Gate_Driver.Off();
 }
 
 

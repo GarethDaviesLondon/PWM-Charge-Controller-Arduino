@@ -26,6 +26,8 @@ class ChargePumpPWM {
 //
 //  Class for Charging PWM waveform control. This implements the various waveforms based on 
 //  Requirements for PWM function of the charge waveform.
+//  The theory of Lead-Acid charging is from here: 
+//  http://batteryuniversity.com/learn/article/charging_the_lead_acid_battery
 //
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +64,7 @@ class VoltageSensor {
           int Highside;
           int Lowside;
           int Readpin;
-          float FullScaleR;
+          float FullScale;
           float AcrossLowR;
           float LowRangeConvRatio;
           float FullRangeConvRatio;
