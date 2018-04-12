@@ -1,3 +1,5 @@
+#define DEBUG
+
 #include <Arduino.h>
 #include "PWMLibs.h"
 
@@ -22,15 +24,14 @@
                           //Into inverting mode.
                           //Timer 2 controls pins 11 and 3. 11 Being on A, and 3 on B
       TCCR2B = TCCR2B & 0xF8 | 0x1; // Max frequency, of about 30Khz.
-
-      
+         
       pinMode(OutA,OUTPUT);
       pinMode(OutB,OUTPUT);  
       #ifdef DEBUG
-        serial.print("Pump Charge PWM Signal Establised on Pins");
-        serial.print(OutA);
-        serial.print(" and ");
-        serial.println(OutB);
+        Serial.print("Pump Charge PWM Signal Establised on Pins");
+        Serial.print(OutA);
+        Serial.print(" and ");
+        Serial.println(OutB);
       #endif
     };
 
@@ -39,7 +40,7 @@
        analogWrite(OutA,117);  //Less than (127) 50% duty cycle for non overlapping
        analogWrite(OutB,137);
         #ifdef DEBUG
-          serial.println("ON: Pump Charge PWM Signal turned on");
+          Serial.println("ON: Pump Charge PWM Signal turned on");
         #endif
     }
 
@@ -48,13 +49,12 @@
        analogWrite(OutA,0);  //Sets output low
        analogWrite(OutB,255);  //Sets output low (NB It's inverting)
        #ifdef DEBUG
-          serial.println("OFF: Pump Charge PWM Signal turned OFF");
+          Serial.println("OFF: Pump Charge PWM Signal turned OFF");
        #endif
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //END Class ChargePumpPWM
 //////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -73,54 +73,58 @@ VoltageSensor::VoltageSensor (int Pin, float FullV,int HighR, int LowR)
   PossOver = false;
 
   //This determines calculates the voltage seen across the Potential Divider
-  AcrossLowR = (FullScale * Lowside) / (Lowside+Highside);
+  AcrossLowR =   (float)Lowside / ((float)Lowside+(float)Highside);
 
- 
-
-  LowRangeConvRatio = AcrossLowR / 1023;    //This is the ratio that will be needed to convert back to volts from a 0-1023 A-D scale
-  FullRangeConvRatio = FullScale /1023;     //This is the ratio for the full voltage
+  LowRangeConvRatio = 1023 / FullScale;    //This is the ratio that will be needed to convert back to volts from a 0-1023 A-D scale
+  FullRangeConvRatio = 1023 / (FullScale / AcrossLowR) ;     //This is the ratio for the full voltage if it were measured.
 
    #ifdef DEBUG
-    serial.print("\nVoltage Sensor Initialised : Pin");
-    serial.print(Readpin);
-    serial.print(" Max Voltage ");
-    serial.print(FullScale);
-    serial.print(" POT resistor H ");
-    serial.print(Highside);
-    serial.print(" L ");
-    serial.print(Lowside);
-    serial.print(" Lowside Conversion ");
-    serial.print(LowRangeConvRatio);
-    serial.print(" FullS Conversion ");
-    seral.println(FullRangeConvRatio);
-  #endif
+    Report();
+   #endif
 
-  
    //Check if there is a potential that there will be more than 5 volts on the analogue pin
   if (AcrossLowR > 5)
   {
     PossOver = true;
     #ifdef DEBUG
-      serial.println("**** OverVoltage Possible : Warning Flag Set");
+      Serial.println("**** OverVoltage Possible : Warning Flag Set");
     #endif
   }
+}
+
+void VoltageSensor::Report()
+{
+    Serial.print("\nVoltage Sensor Initialised : Pin ");
+    Serial.print(Readpin);
+    Serial.print(" Max-Voltage:");
+    Serial.print(FullScale);
+    Serial.print(" POT-resistors H:");
+    Serial.print(Highside);
+    Serial.print(" L:");
+    Serial.print(Lowside);
+    Serial.print(" Lowside Conversion:");
+    Serial.print(LowRangeConvRatio);
+    Serial.print(" FullS Conversion:");
+    Serial.println(FullRangeConvRatio);
+    if (PossOver) Serial.println("**** OverVoltage Possible : Warning Flag Set");
 }
 
 void VoltageSensor::takeReading (void)
 {
   ADReading = analogRead(Readpin);
-  LowR = ADReading * LowRangeConvRatio; 
-  FullScaledReading = ADReading * FullRangeConvRatio;
+  LowR = ADReading / LowRangeConvRatio; 
+  FullScaledReading = ADReading / FullRangeConvRatio;
   
   #ifdef DEBUG
-    serial.print("\nVoltage Reading Taken: Pin");
-    serial.print(Readpin);
-    serial.print(" AD Value ");
-    serial.print(ADReading);
-    serial.print(" Full V ");
-    serial.print(FullScaleReading);
-    serial.print(" V across divider ");
-    seral.println(LowR);
+    Serial.print("\nVoltage Reading Taken: Pin ");
+    Serial.print(Readpin);
+    Serial.print(" AD Value ");
+    Serial.print(ADReading);
+    Serial.print(" Full V ");
+    Serial.print(FullScaledReading);
+    Serial.print("V across divider ");
+    Serial.print(LowR);
+    Serial.println("V");
   #endif
 }
 
@@ -231,8 +235,7 @@ int VoltageSensor::ADValue (void)
           if (state == 2) return true;
           return false;
         }
-
-
+        
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //END Class ChargePWM
 //////////////////////////////////////////////////////////////////////////////////////////////

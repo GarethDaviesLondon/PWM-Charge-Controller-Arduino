@@ -84,5 +84,6 @@ class VoltageSensor {
           float LowReading (void);
           int ADValue (void);
           VoltageSensor (int , float ,int , int );
+          void Report();
 };
 
