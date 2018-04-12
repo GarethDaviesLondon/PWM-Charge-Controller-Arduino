@@ -1,10 +1,12 @@
 
+#define DEBUG TRUE  //Used to trigger debug loops and communications etc. Set to false for prodcution mode
+
 #include <Arduino.h>
 #include "PWM_Charge_Controller.h"
 #include "PWMLibs.h"
 
 ///GLOBALS
- ChargePumpPWM Mosfet_Gate_Driver (CHARGEPUMP_PWM_A,CHARGEPUMP_PWM_B); //Definitions of pins are found in PWM_Charge_Controller.h
+ChargePumpPWM Mosfet_Gate_Driver (CHARGEPUMP_PWM_A,CHARGEPUMP_PWM_B); //Definitions of pins are found in PWM_Charge_Controller.h
 
 
 void WakeUp()
@@ -29,9 +31,7 @@ void Sleep()
 void setup() {
 
 #ifdef DEBUG
-  
       Serial.begin(9600);     //Enable serial monitor line
-      
 #endif
   
   pinMode(CHARGEWAVEFORM,OUTPUT);

@@ -1,4 +1,4 @@
-#define DEBUG TRUE  //Used to trigger debug loops and communications etc. Set to false for prodcution mode
+
 #define WAIT_TIME 2000 //Used in testing PWM waveform generation
 
 //These define the resistor values used in the voltage sensing potentiameters, this will be scaled to 1-5V

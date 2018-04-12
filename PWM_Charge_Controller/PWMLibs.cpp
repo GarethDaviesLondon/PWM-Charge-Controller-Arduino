@@ -148,3 +148,92 @@ int VoltageSensor::ADValue (void)
   return (ADReading);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+//END Class VoltageSensor
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  ChargePWM Class
+//  This is for generating the PWM waveform to control the charger
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+        ChargePWM::ChargePWM (int InPin)
+        {
+          PWMPin = InPin;
+          pinMode(PWMPin,OUTPUT);
+          state = 0;    //Charge is off in initial state
+          analogWrite (PWMPin,0);    
+        }
+        
+        void ChargePWM::ImplementWaveForm (int desiredState)
+        {
+          switch (desiredState)
+          {
+              case 0: // Turn off
+                  analogWrite (PWMPin,0);
+                  state=0;
+              break;
+
+              case 2: // Do Hard On
+                analogWrite (PWMPin,255);
+                state=2;
+              break;
+              
+              case 1: // Do smart trickle
+                 analogWrite(PWMPin,127);  //50% duty Cycle
+                  state=1;      
+              break;     
+          }
+        }
+
+        void ChargePWM::chargeHardOn (void)
+        {
+          ImplementWaveForm (2);
+        }
+        
+        void ChargePWM::chargeOff (void)
+        {
+         ImplementWaveForm(0);
+        }
+        
+        void ChargePWM::chargeTrickle (float VG)
+        {
+          VoltageGap=VG;
+          ImplementWaveForm(1);
+        }
+        
+        void ChargePWM::Suspend (void)
+        {
+          statestore=state;
+          chargeOff();
+        }
+        
+        void ChargePWM::UnSuspend (void)
+        {
+          ImplementWaveForm(statestore);
+        }
+        
+        bool ChargePWM::isTrickle(void)
+        {
+          if ( state == 1) return true;
+          return false;
+        }
+        
+        bool ChargePWM::isOff(void)
+        {
+          if (state == 0) return true;
+          return false;
+        }
+        
+        bool ChargePWM::isHardOn(void)
+        {
+          if (state == 2) return true;
+          return false;
+        }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//END Class ChargePWM
+//////////////////////////////////////////////////////////////////////////////////////////////
+

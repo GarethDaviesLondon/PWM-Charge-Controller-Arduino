@@ -31,23 +31,27 @@ class ChargePumpPWM {
 //
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-class PWM {
+class ChargePWM {
   private:
         int state;  //This provides a record of it's current charge configuration
+        int statestore;
+        int PWMPin;
+        float VoltageGap;      
         void ImplementWaveForm (int desiredState);
   public:
-        void chargeFull (void);
+        ChargePWM (int);
+        void chargeHardOn (void);
         void chargeOff (void);
-        void chargeTrickle (int targetVoltage, int currentVoltage);
+        void chargeTrickle (float);
         void Suspend (void);
         void UnSuspend (void);
         bool isTrickle(void);
         bool isOff(void);
-        bool isFull(void);
+        bool isHardOn(void);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-//END Class PWM
+//END Class ChargePWM
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////////////////////
