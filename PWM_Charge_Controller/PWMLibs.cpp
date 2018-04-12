@@ -27,9 +27,72 @@
      void  ChargePumpPWM::Off (void)
     {
        analogWrite(OutA,0);  //Sets output low
-        analogWrite(OutB,255);  //Sets output low (NB It's inverting)
+       analogWrite(OutB,255);  //Sets output low (NB It's inverting)
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //END Class ChargePumpPWM
 //////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  Class for sensing voltages from Arduino
+//  Understands the voltage divider resistors to give a scaled output
+//  Note yet implemented is a read under PWM conditions for the battery
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+
+VoltageSensor::VoltageSensor (int Pin, float FullV,int HighR, int LowR)
+{
+  Readpin = Pin;
+  Highside = HighR;
+  Lowside = LowR;
+  FullScaleR = FullV;
+  PossOver = false;
+
+  //This determines calculates the voltage seen across the Potential Divider
+  AcrossLowR = (FullScaleR * Lowside) / (Lowside+Highside);
+
+  //Check if there is a potential that there will be more than 5 volts on the analogue pin
+  if (AcrossLowR > 5)
+  {
+    PossOver = true;
+  }
+
+  LowRangeConvRatio = AcrossLowR / 1023;    //This is the ratio that will be needed to convert back to volts from a 0-1023 A-D scale
+  FullRangeConvRatio = FullScaleR /1023;     //This is the ratio for the full voltage
+  
+}
+
+void VoltageSensor::takeReading (void)
+{
+  ADReading = analogRead(Readpin);
+  LowR = ADReading * LowRangeConvRatio; 
+  FullScaleR = ADReading * FullRangeConvRatio;
+}
+
+bool VoltageSensor::PossOverVolts (void)
+{
+  return (PossOver);
+}
+
+float VoltageSensor::volts (void)
+{
+  takeReading();
+  return (FullScaleR);
+}
+
+float VoltageSensor::LowReading (void)
+
+{
+  takeReading();
+  return (LowR); 
+}
+
+int VoltageSensor::ADValue (void)
+{
+  takeReading();
+  return (ADReading);
+}
 

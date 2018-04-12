@@ -3,32 +3,8 @@
 #include "PWM_Charge_Controller.h"
 #include "PWMLibs.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-//
-//  Class for Charging PWM waveform control. This implements the various waveforms based on 
-//  Requirements for PWM function of the charge waveform.
-//
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-class PWM {
-  private:
-        int state;
-  public:
-        void chargeFull (void);
-        void chargeOff (void);
-        void chargeTrickle (int targetVoltage, int currentVoltage);
-        bool isTrickle(void);
-        bool isOff(void);
-        bool isFull(void);
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-//END Class PWM
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-
 ///GLOBALS
- ChargePumpPWM Mosfet_Highside (CHARGEPUMP_PWM_A,CHARGEPUMP_PWM_B);
+ ChargePumpPWM Mosfet_Highside (CHARGEPUMP_PWM_A,CHARGEPUMP_PWM_B); //Definitions of pins are found in PWM_Charge_Controller.h
 
 
 void WakeUp()
@@ -43,8 +19,6 @@ void Sleep()
 {
     Mosfet_Highside.Off();
 }
-
-
 
 
 
