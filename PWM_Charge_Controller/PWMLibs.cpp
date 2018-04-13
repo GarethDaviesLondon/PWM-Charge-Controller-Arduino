@@ -1,4 +1,4 @@
-#define DEBUG
+//#define DEBUG
 
 #include <Arduino.h>
 #include "PWMLibs.h"
@@ -191,7 +191,7 @@ int VoltageSensor::ADValue (void)
                   state=1;
               */
                   
-                  PulseWidth= (int) (255 * (VoltageGap/1.5) ); // 1.5 is the difference between 12.5V and 14V in a 12V System.
+                  PulseWidth= (int) (255 * (VoltageGap/1.2) ); // tapering to zero seems to stop me gettting full charge this helps.
                   if (PulseWidth < 0) PulseWidth=0;
                   if (PulseWidth > 255) PulseWidth=255;
                   state=1;
