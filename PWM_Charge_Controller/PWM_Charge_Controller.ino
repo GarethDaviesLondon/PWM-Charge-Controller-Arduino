@@ -1,6 +1,7 @@
 
 #define DEBUG   //Used to trigger debug loops and communications etc. Set to false for prodcution mode
 #include <Arduino.h>
+#include <LowPower.h> //Available from https://github.com/rocketscream/Low-Power
 #include "PWM_Charge_Controller.h"
 #include "PWMLibs.h"
 
@@ -66,6 +67,7 @@ void PauseLoop()
 #ifdef DEBUG
       Serial.println("Solar Voltage Low - Sleeping");
 #endif
+      doChargeSleep();
     }
     else
     {
@@ -200,12 +202,20 @@ bool doPWMwithHysteresis(bool H)
 
 void doChargeSleep()
 {
+      pinMode(LED_BUILTIN, OUTPUT);
 #ifdef DEBUG
       Serial.println("\nPreparing to sleep ");
+      digitalWrite(LED_BUILTIN, LOW); //Turnoff the Board LED
+      delay(250);
+      digitalWrite(LED_BUILTIN, HIGH); //Turn on the Board LED
+      delay(250);
+      digitalWrite(LED_BUILTIN, LOW); //Turnoff the Board LED
+      delay(250);
 #endif
+    digitalWrite(LED_BUILTIN, LOW); //Turnoff the Board LED
     Mosfet_Gate_Driver.Off(); //Turn off the charge Pump signals
     Charger.Suspend();        //stop the output PWM signal and save state
-    delay(10000);
+    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);  
 
 }
 
