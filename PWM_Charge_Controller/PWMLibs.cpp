@@ -3,6 +3,16 @@
 #include <Arduino.h>
 #include "PWMLibs.h"
 
+/* Library implements three classes 
+ *  
+ *  ChargePumpPWM sets up the anti-phase PWM for the on-board charge pump, required to get high
+ *  side MOSFET firing.
+ *  
+ *  VoltageSensor includes the logic for voltage dividers so it reports converted voltage
+ *  Also makes raw A->D reading and voltage on the low-side of the POT if needed
+ */
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Class ChargePumpPWM
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -10,7 +20,9 @@
   ChargePumpPWM::ChargePumpPWM (int OutputA, int OutputB)
     {
       /////////////////////////////////////////////////
-      //    Set up the PWM inverting pins and frequency
+      //  Set up the PWM inverting pins and frequency
+      //  Based on tutorial from Julian Ilett 
+      //  https://www.youtube.com/watch?v=D826h-YQun4
       /////////////////////////////////////////////////
       OutA = OutputA;
       OutB = OutputB;
@@ -83,6 +95,11 @@ VoltageSensor::VoltageSensor (int Pin, int HighR, int LowR)
   
 }
 
+
+//////////////////////////////////////////////////////////////
+//Method for reporting on the Serial port the parameters of this instance
+//useful for debugging or when developing hardware
+//////////////////////////////////////////////////////////////
 void VoltageSensor::Report()
 {
     Serial.print("\n****Voltage Sensor Initialised : Pin ");
@@ -96,6 +113,14 @@ void VoltageSensor::Report()
     Serial.print(" FullS Conversion:");
     Serial.println(FullRangeConvRatio);
 }
+
+//////////////////////////////////////////////////////////////
+//Method to take a reading and stores it in the local storage
+//Keeping a local copy of the last reading is helpful for users
+//of the class. Especially if reading in the presence of a PWM
+//Waveform that is halted prior to taking the reading.
+//Saves too many interuptions
+//////////////////////////////////////////////////////////////
 
 void VoltageSensor::takeReading (void)
 {
@@ -143,7 +168,15 @@ int VoltageSensor::ADValue (void)
 //////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  ChargePWM Class
-//  This is for generating the PWM waveform to control the charger
+//  This is for generating the PWM waveform to control the charger.
+//  It has three modes of operation, including a built in Hysterisis mode 
+//  In the standard PWM generator.
+//
+//
+//  This class can be modified to make the most rapid charge possible in HardOn mode here it
+//  sets the PWM to 100% duty cycle, but maybe there is a better way. If so do it here.
+//
+//
 /////////////////////////////////////////////////////////////////////////////////////////////
 
         ChargePWM::ChargePWM (int InPin)
@@ -182,18 +215,22 @@ int VoltageSensor::ADValue (void)
   #endif
               break;
               
-              case 1: // Do smart trickle
-              /*
-                  PulseWidth= (int) (127 * (VoltageGap/1.5) ); // 1.5 is the difference between 12.5V and 14V in a 12V System.
-                  PulseWidth=PulseWidth+127;
-                  if (PulseWidth < 127) PulseWidth=127;
-                  if (PulseWidth > 255) PulseWidth=255;
-                  state=1;
-              */
+              case 1: 
+                 /*
+                  * This is smart trickle
+                  * Tune the VoltageGap divisor value to modify the dynamic range of the PWM signal.
+                  * The PWM developed is proportional to the delta between TARGET and ACTUAL voltage. 
+                  * this Delta  is passed as a float in the method calll.
+                  * tapering to zero seems to stop before full charge is reached, so using 1.2 as a divisor means that there is 20% duty cycle
+                  * at full voltage. 
+                  * 
+                  * The Stop and Hysterisis parts of an implementation will prevent over charging.
+                  * 
+                  */
+                  PulseWidth= (int) (255 * (VoltageGap/1.2) ); 
                   
-                  PulseWidth= (int) (255 * (VoltageGap/1.2) ); // tapering to zero seems to stop me gettting full charge this helps.
-                  if (PulseWidth < 0) PulseWidth=0;
-                  if (PulseWidth > 255) PulseWidth=255;
+                  if (PulseWidth < 0) PulseWidth=0;     //Limit the PWM bottom end
+                  if (PulseWidth > 255) PulseWidth=255; //Limit the PWM top end
                   state=1;
                   analogWrite(PWMPin,PulseWidth);
    #ifdef DEBUG

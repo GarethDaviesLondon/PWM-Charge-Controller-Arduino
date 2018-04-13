@@ -10,7 +10,6 @@
 #define BATTPOT_HIHGSIDE  100
 #define BATTPOT_LOWSIDE   51
 
-
 /*
 The frequency of the PWM signal on most pins is approximately 490 Hz. On the Uno and similar boards, pins 5 and 6
 have a frequency of approximately 980 Hz.

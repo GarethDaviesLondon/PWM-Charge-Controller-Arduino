@@ -5,10 +5,30 @@
 #include "PWM_Charge_Controller.h"
 #include "PWMLibs.h"
 
-///////////////////////////////////////////////////////////////
-//CONSTANTS SUCH AS TARGET VOLTAGE, RESISTOR POTENTIAL DIVIDERS
-//ETC ARE DEFINED IN PWM_Charge_Controller.h
-//////////////////////////////////////////////////////////////
+/* PWM Charge Controller Sketch.
+ * 
+ * Controls the Arduino to charge a Lead Acid Cell. Circuit diagram is available in the GitHub project
+ * and Also on EasyEDA.
+ * 
+ * GITHUB: https://github.com/GarethDaviesLondon/PWM-Charge-Controller
+ * https://easyeda.com/account/project?project=c344af2c23e64891ae9b483e7b144876
+ * 
+ * The problem I wanted to solve with this is to keep a car battery charged from a 10W Solar panel resting in the window
+ * When the sun is not shining I want the current drain to be minimal, and also don't want to over charge it.
+ * 
+ * Algorithm: Compare Solar Voltage with Batery Voltage, if it's less then go to sleep and conserve power, wake up and check.
+ * 
+ * During charging there are four states:
+ * 
+ * Battery voltage at or above full-charge then stop.
+ * Battery voltage at or below low voltage - charge at maximum rate
+ * In the run up to full charge ggo to a PWM waveform that tapers off as the battery charges
+ * Once fully charged then hold off re-starting the charge until the battery has gone down a bit then charge up again
+ * The last form is called Hysterisis mode.
+ * 
+ * CONSTANTS SUCH AS TARGET VOLTAGE, RESISTOR POTENTIAL DIVIDERS
+ * ETC ARE DEFINED IN PWM_Charge_Controller.h
+ */
 
 ///GLOBALS
 ChargePumpPWM Mosfet_Gate_Driver (CHARGEPUMP_PWM_A,CHARGEPUMP_PWM_B); //Definitions of pins are found in PWM_Charge_Controller.h
@@ -18,10 +38,6 @@ ChargePWM Charger(CHARGEWAVEFORM);
 
 float BatVoltage;
 float SolarVoltage;
-
-///////////////////////////////////////////////////
-////////////////MAIN ARDUINO CODE SKETCH ///////////
-///////////////////////////////////////////////////
 
 void setup() {
 
@@ -155,8 +171,6 @@ void ChargeLoop()
 
 bool doPWMwithHysteresis(bool H)
 {
-
-
   bool Hysteresis = H;
   if (Hysteresis == false)
   {
@@ -204,7 +218,9 @@ void doChargeSleep()
 {
       pinMode(LED_BUILTIN, OUTPUT);
 #ifdef DEBUG
-      Serial.println("\nPreparing to sleep ");
+      //The Arduino can shut down pretty rapidly before the serial buffer empties
+      //So this also blinks the built-in LED 
+      Serial.println("\nPreparing to sleep "); 
       digitalWrite(LED_BUILTIN, LOW); //Turnoff the Board LED
       delay(250);
       digitalWrite(LED_BUILTIN, HIGH); //Turn on the Board LED
@@ -212,10 +228,10 @@ void doChargeSleep()
       digitalWrite(LED_BUILTIN, LOW); //Turnoff the Board LED
       delay(250);
 #endif
-    digitalWrite(LED_BUILTIN, LOW); //Turnoff the Board LED
+    digitalWrite(LED_BUILTIN, LOW); //Turnoff the Board LED, it can remain high and increase current consumption.
     Mosfet_Gate_Driver.Off(); //Turn off the charge Pump signals
     Charger.Suspend();        //stop the output PWM signal and save state
-    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);  
+    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);  //From the LowPower library included.
 
 }
 
