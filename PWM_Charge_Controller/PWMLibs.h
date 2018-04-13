@@ -36,6 +36,7 @@ class ChargePWM {
         int state;  //This provides a record of it's current charge configuration
         int statestore;
         int PWMPin;
+        int PulseWidth;
         float VoltageGap;      
         void ImplementWaveForm (int desiredState);
   public:
@@ -44,7 +45,7 @@ class ChargePWM {
         void chargeOff (void);
         void chargeTrickle (float);
         void Suspend (void);
-        void UnSuspend (void);
+        void Resume (void);
         bool isTrickle(void);
         bool isOff(void);
         bool isHardOn(void);
@@ -72,7 +73,6 @@ class VoltageSensor {
           float AcrossLowR;
           float LowRangeConvRatio;
           float FullRangeConvRatio;
-          bool PossOver;
           float LowR;
           float FullScaledReading;
           int ADReading;
@@ -80,10 +80,9 @@ class VoltageSensor {
           void takeReading(void);
    public:
           float volts (void);
-          bool PossOverVolts (void);
           float LowReading (void);
           int ADValue (void);
-          VoltageSensor (int , float ,int , int );
+          VoltageSensor (int ,int , int );
           void Report();
 };
 

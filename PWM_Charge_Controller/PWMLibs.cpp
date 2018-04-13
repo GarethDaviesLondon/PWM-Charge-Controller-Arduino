@@ -64,40 +64,29 @@
 //  Note yet implemented is a read under PWM conditions for the battery
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-VoltageSensor::VoltageSensor (int Pin, float FullV,int HighR, int LowR)
+VoltageSensor::VoltageSensor (int Pin, int HighR, int LowR)
 {
   Readpin = Pin;
   Highside = HighR;
   Lowside = LowR;
-  FullScale = FullV;
-  PossOver = false;
 
   //This determines calculates the voltage seen across the Potential Divider
   AcrossLowR =   (float)Lowside / ((float)Lowside+(float)Highside);
 
-  LowRangeConvRatio = 1023 / FullScale;    //This is the ratio that will be needed to convert back to volts from a 0-1023 A-D scale
-  FullRangeConvRatio = 1023 / (FullScale / AcrossLowR) ;     //This is the ratio for the full voltage if it were measured.
+  LowRangeConvRatio = 1023 / 5.0;    //This is the ratio that will be needed to convert back to volts from a 0-1023 A-D scale
+  FullRangeConvRatio = 1023 / ( 5.0 / AcrossLowR) ;     //This is the ratio for the full voltage
 
    #ifdef DEBUG
     Report();
    #endif
 
-   //Check if there is a potential that there will be more than 5 volts on the analogue pin
-  if (AcrossLowR > 5)
-  {
-    PossOver = true;
-    #ifdef DEBUG
-      Serial.println("**** OverVoltage Possible : Warning Flag Set");
-    #endif
-  }
+  
 }
 
 void VoltageSensor::Report()
 {
-    Serial.print("\nVoltage Sensor Initialised : Pin ");
+    Serial.print("\n****Voltage Sensor Initialised : Pin ");
     Serial.print(Readpin);
-    Serial.print(" Max-Voltage:");
-    Serial.print(FullScale);
     Serial.print(" POT-resistors H:");
     Serial.print(Highside);
     Serial.print(" L:");
@@ -106,7 +95,6 @@ void VoltageSensor::Report()
     Serial.print(LowRangeConvRatio);
     Serial.print(" FullS Conversion:");
     Serial.println(FullRangeConvRatio);
-    if (PossOver) Serial.println("**** OverVoltage Possible : Warning Flag Set");
 }
 
 void VoltageSensor::takeReading (void)
@@ -116,7 +104,7 @@ void VoltageSensor::takeReading (void)
   FullScaledReading = ADReading / FullRangeConvRatio;
   
   #ifdef DEBUG
-    Serial.print("\nVoltage Reading Taken: Pin ");
+    Serial.print("Voltage Reading Taken: Pin ");
     Serial.print(Readpin);
     Serial.print(" AD Value ");
     Serial.print(ADReading);
@@ -128,10 +116,6 @@ void VoltageSensor::takeReading (void)
   #endif
 }
 
-bool VoltageSensor::PossOverVolts (void)
-{
-  return (PossOver);
-}
 
 float VoltageSensor::volts (void)
 {
@@ -175,18 +159,44 @@ int VoltageSensor::ADValue (void)
           switch (desiredState)
           {
               case 0: // Turn off
-                  analogWrite (PWMPin,0);
+                  PulseWidth =0;
+                  analogWrite (PWMPin,PulseWidth);
                   state=0;
+  #ifdef DEBUG
+    Serial.print("Charger Mode: ");
+    Serial.print(state);
+    Serial.print(" Selected PWM Value ");
+    Serial.println(PulseWidth);
+  #endif
               break;
 
               case 2: // Do Hard On
-                analogWrite (PWMPin,255);
+                PulseWidth=255;
+                analogWrite (PWMPin,PulseWidth);
                 state=2;
+   #ifdef DEBUG
+    Serial.print("Charger Mode: ");
+    Serial.print(state);
+    Serial.print(" Selected PWM Value ");
+    Serial.println(PulseWidth);
+  #endif
               break;
               
               case 1: // Do smart trickle
-                 analogWrite(PWMPin,127);  //50% duty Cycle
-                  state=1;      
+                  PulseWidth= (int) (200 * (VoltageGap/1.5) ); // 1.5 is the difference between 12.5V and 14V in a 12V System.
+                  PulseWidth=PulseWidth+55;
+                  if (PulseWidth < 55) PulseWidth=55;
+                  if (PulseWidth > 255) PulseWidth=255;
+                  state=1;
+                  analogWrite(PWMPin,PulseWidth);
+   #ifdef DEBUG
+    Serial.print("Charger Mode: ");
+    Serial.print(state);
+    Serial.print(" Voltage Difference ");
+    Serial.print(VoltageGap);
+    Serial.print(" Selected PWM Value ");
+    Serial.println(PulseWidth);
+  #endif
               break;     
           }
         }
@@ -213,7 +223,7 @@ int VoltageSensor::ADValue (void)
           chargeOff();
         }
         
-        void ChargePWM::UnSuspend (void)
+        void ChargePWM::Resume (void)
         {
           ImplementWaveForm(statestore);
         }
