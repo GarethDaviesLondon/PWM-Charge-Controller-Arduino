@@ -1,12 +1,14 @@
 
 #define WAIT_TIME 2000 //Used in testing PWM waveform generation
 
+#define TARGET  13.50
+#define HYSTGAP  0.30
+
 //These define the resistor values used in the voltage sensing potentiameters, this will be scaled to 1-5V
 #define SOLARPOT_HIGHSIDE 680
 #define SOLARPOT_LOWSIDE  220
 #define BATTPOT_HIHGSIDE  100
 #define BATTPOT_LOWSIDE   51
-
 
 /*
 The frequency of the PWM signal on most pins is approximately 490 Hz. On the Uno and similar boards, pins 5 and 6
@@ -26,4 +28,5 @@ Older Arduino boards with an ATmega8 only support analogWrite() on pins 9, 10, a
 #define CHARGE_LOW_VOLTAGE 12.5
 #define CHARGE_HIGH 1  //This is the voltage at fully charged
 #define CHARGE_HIGH_VOLTAGE 14.0
+
 
