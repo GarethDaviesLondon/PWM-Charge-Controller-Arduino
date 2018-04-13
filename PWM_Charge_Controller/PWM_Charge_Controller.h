@@ -1,6 +1,9 @@
 
 #define WAIT_TIME 2000 //Used in testing PWM waveform generation
 
+#define TARGET  13.50
+#define HYSTGAP  0.5
+
 //These define the resistor values used in the voltage sensing potentiameters, this will be scaled to 1-5V
 #define SOLARPOT_HIGHSIDE 680
 #define SOLARPOT_LOWSIDE  220
@@ -26,4 +29,5 @@ Older Arduino boards with an ATmega8 only support analogWrite() on pins 9, 10, a
 #define CHARGE_LOW_VOLTAGE 12.5
 #define CHARGE_HIGH 1  //This is the voltage at fully charged
 #define CHARGE_HIGH_VOLTAGE 14.0
+
 

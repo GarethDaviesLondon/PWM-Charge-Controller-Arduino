@@ -183,9 +183,16 @@ int VoltageSensor::ADValue (void)
               break;
               
               case 1: // Do smart trickle
-                  PulseWidth= (int) (200 * (VoltageGap/1.5) ); // 1.5 is the difference between 12.5V and 14V in a 12V System.
-                  PulseWidth=PulseWidth+55;
-                  if (PulseWidth < 55) PulseWidth=55;
+              /*
+                  PulseWidth= (int) (127 * (VoltageGap/1.5) ); // 1.5 is the difference between 12.5V and 14V in a 12V System.
+                  PulseWidth=PulseWidth+127;
+                  if (PulseWidth < 127) PulseWidth=127;
+                  if (PulseWidth > 255) PulseWidth=255;
+                  state=1;
+              */
+                  
+                  PulseWidth= (int) (255 * (VoltageGap/1.5) ); // 1.5 is the difference between 12.5V and 14V in a 12V System.
+                  if (PulseWidth < 0) PulseWidth=0;
                   if (PulseWidth > 255) PulseWidth=255;
                   state=1;
                   analogWrite(PWMPin,PulseWidth);
