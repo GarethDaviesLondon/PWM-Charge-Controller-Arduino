@@ -42,7 +42,7 @@ float SolarVoltage;
 void setup() {
 
 #ifdef DEBUG
-      Serial.begin(57600);     //Enable serial monitor line
+      Serial.begin(9600);     //Enable serial monitor line
       Serial.println("Debug Enabled");
 #endif
 
@@ -51,9 +51,10 @@ void setup() {
 
 void loop()
 {
-  ChargeLoop();
+  //ChargeLoop();
   // If we've returned then we're undervoltage detected between Solar and Battery.
-  PauseLoop();
+  //PauseLoop();
+  TestLoop();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -61,6 +62,29 @@ void loop()
 //This puts a longer delay between sampling
 //And makes calls to reduce power consumption of the board
 ///////////////////////////////////////////////////////////////
+
+void TestLoop()
+{
+  Mosfet_Gate_Driver.On();
+  BatVoltage = VBat.volts();
+  SolarVoltage = VSolar.volts();
+  Serial.print(BatVoltage);
+  Serial.print("V Solar ");
+  Serial.print(SolarVoltage);
+  Serial.println("V");
+  Serial.println("Pin 5 High");
+  digitalWrite(5,HIGH);
+  delay(3000);
+  BatVoltage = VBat.volts();
+  SolarVoltage = VSolar.volts();
+  Serial.print(BatVoltage);
+  Serial.print("V Solar ");
+  Serial.print(SolarVoltage);
+  Serial.println("V");
+  Serial.println("Pin 5 LOW");
+  digitalWrite(5,LOW);
+  delay(3000);
+}
 
 void PauseLoop()
 {

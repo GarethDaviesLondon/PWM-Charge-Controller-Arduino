@@ -227,8 +227,7 @@ int VoltageSensor::ADValue (void)
                   * The Stop and Hysterisis parts of an implementation will prevent over charging.
                   * 
                   */
-                  //PulseWidth= (int) (255 * (VoltageGap/1.2) ); 
-                  PulseWidth= (int) (255 * VoltageGap );
+                  PulseWidth= (int) (255 * (VoltageGap/1.2) ); 
                   
                   if (PulseWidth < 0) PulseWidth=0;     //Limit the PWM bottom end
                   if (PulseWidth > 255) PulseWidth=255; //Limit the PWM top end
