@@ -39,6 +39,7 @@ class ChargePWM {
         int PulseWidth;
         float VoltageGap;      
         void ImplementWaveForm (int desiredState);
+
   public:
         ChargePWM (int);
         void chargeHardOn (void);

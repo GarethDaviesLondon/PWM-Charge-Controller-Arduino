@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 #include "PWMLibs.h"
+#include "MorseSender.h"
+MorseSender CC_Morse(13); //This is a cludge because I cannot figure out how to pass the global Morse either in a constructor or just use the global
 
 /* Library implements three classes 
  *  
@@ -195,6 +197,7 @@ int VoltageSensor::ADValue (void)
                   PulseWidth =0;
                   analogWrite (PWMPin,PulseWidth);
                   state=0;
+                  CC_Morse.SendString("off");
   #ifdef DEBUG
     Serial.print("Charger Mode: ");
     Serial.print(state);
@@ -207,6 +210,7 @@ int VoltageSensor::ADValue (void)
                 PulseWidth=255;
                 analogWrite (PWMPin,PulseWidth);
                 state=2;
+                CC_Morse.SendString("on");
    #ifdef DEBUG
     Serial.print("Charger Mode: ");
     Serial.print(state);
@@ -234,6 +238,7 @@ int VoltageSensor::ADValue (void)
                   if (PulseWidth > 255) PulseWidth=255; //Limit the PWM top end
                   state=1;
                   analogWrite(PWMPin,PulseWidth);
+                  CC_Morse.SendString("PWM");
    #ifdef DEBUG
     Serial.print("Charger Mode: ");
     Serial.print(state);

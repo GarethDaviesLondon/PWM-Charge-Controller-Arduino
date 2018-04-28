@@ -1,9 +1,10 @@
 
-#define DEBUG   //Used to trigger debug loops and communications etc. Set to false for prodcution mode
+//#define DEBUG   //Used to trigger debug loops and communications etc. Set to false for prodcution mode
 #include <Arduino.h>
 #include <LowPower.h> //Available from https://github.com/rocketscream/Low-Power
 #include "PWM_Charge_Controller.h"
 #include "PWMLibs.h"
+#include "MorseSender.h"
 
 /* PWM Charge Controller Sketch.
  * 
@@ -34,6 +35,7 @@
 ChargePumpPWM Mosfet_Gate_Driver (CHARGEPUMP_PWM_A,CHARGEPUMP_PWM_B); //Definitions of pins are found in PWM_Charge_Controller.h
 VoltageSensor VBat (A0,BATTPOT_HIHGSIDE,BATTPOT_LOWSIDE);
 VoltageSensor VSolar(A1,SOLARPOT_HIGHSIDE,SOLARPOT_LOWSIDE);
+MorseSender Morse(13);
 ChargePWM Charger(CHARGEWAVEFORM);
 
 float BatVoltage;
@@ -46,7 +48,17 @@ void setup() {
       Serial.println("Debug Enabled");
 #endif
 
-  doChargeWake();
+//On Startup/Reset report the voltages on input and output.
+   BatVoltage = VBat.volts();
+   SolarVoltage = VSolar.volts();
+   Morse.Flash();
+   Morse.SendString("BAT");
+   Morse.SendString((String)BatVoltage);
+   Morse.SendString("SOL");
+   Morse.SendString((String)SolarVoltage);
+//
+
+  doChargeWake(); //StartUp the PWM Waveforms
 }
 
 void loop()
@@ -176,7 +188,7 @@ bool doPWMwithHysteresis(bool H)
   {
 
 #ifdef DEBUG   
-      Serial.print(" No Hysteresis and below target voltage PWM ");
+      Serial.print(" No Hysteresis and below target voltage so do PWM ");
  #endif
       Charger.chargeTrickle(TARGET-BatVoltage+0.5); //The 0.5 is here to make sure the PWM doesn't fade away before reaching voltage
                                                     //The algorithm goes into Hysterisis mode at target so this is safe.
@@ -205,6 +217,7 @@ bool doPWMwithHysteresis(bool H)
       Serial.print(" Hysteresis means Charge off ");
 #endif
           Charger.chargeOff();
+          Morse.SendString("HYST");
 
      }
      return (Hysteresis);
