@@ -5,7 +5,10 @@
 #include "MorseSender.h"
 MorseSender CC_Morse(13); //This is a cludge because I cannot figure out how to pass the global Morse either in a constructor or just use the global
 
-/* Library implements three classes 
+/*  28th April 2018
+ *  Gareth Davies
+ *  
+ *  Library implements three classes 
  *  
  *  ChargePumpPWM sets up the anti-phase PWM for the on-board charge pump, required to get high
  *  side MOSFET firing.

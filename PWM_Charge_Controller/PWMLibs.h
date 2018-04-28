@@ -1,5 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//  28th April 2018, Gareth Davies
+//
 //  Charge pump class handles the initialisation of the charge pump
 //  Sets the registers etc.
 //  Based on tutorial from Julian Ilett 

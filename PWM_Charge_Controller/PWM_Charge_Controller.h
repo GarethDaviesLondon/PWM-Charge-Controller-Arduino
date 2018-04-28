@@ -1,3 +1,5 @@
+//28th April 2018, Gareth Davies
+
 
 #define WAIT_TIME 2000 //Used in testing PWM waveform generation
 

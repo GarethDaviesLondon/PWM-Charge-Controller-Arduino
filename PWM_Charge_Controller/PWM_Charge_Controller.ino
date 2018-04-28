@@ -7,6 +7,9 @@
 #include "MorseSender.h"
 
 /* PWM Charge Controller Sketch.
+ *  
+ *  28th April 2018
+ *  Gareth Davies
  * 
  * Controls the Arduino to charge a Lead Acid Cell. Circuit diagram is available in the GitHub project
  * and Also on EasyEDA.

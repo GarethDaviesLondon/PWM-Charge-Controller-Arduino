@@ -2,22 +2,32 @@
 #include "MorseSender.h"
 //#define DEBUG
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
+//  28 April 2018
+//  Gareth Davies
 //
 //  Morse Sender Class implements a way to send a single letter using an LED Pin
-//  Assignment.
+//  Assignment. 
+//
+//  The Mark-Space ratios have been adjusted from standard Morse DASH=3XDOT. Because I found this 
+//  Hard to read when done in light. The Nato signalling speed is 8WPM and I think this feels about
+//  That sort of speed.
+//
+//  Increasing the speed above the defaults seems to lead to breakdown in accuracy, not sure if
+//  This is to do with the latency on the chip, Led hysterisis, code issues or something else. 
+//
+//
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-    MorseSender::MorseSender(void)
+    MorseSender::MorseSender(void)  //Normal constructor, defaults to Arduino Pin 13.
     {
       LEDPIN = 13;
-      tempo=100;
+      tempo=100;                    //This variable is exposed so users can set speed if needed.
       pinMode(LEDPIN, OUTPUT);
     }
 
     
-    MorseSender::MorseSender(int ledpin)
+    MorseSender::MorseSender(int ledpin)  //Specifies which pin to use for high/low signalling.
     {
       LEDPIN = ledpin;
       tempo=100;
@@ -25,16 +35,17 @@
     }
     
 
-    void MorseSender::SendString(String text)
+    void MorseSender::SendString(String text) //Send a String and it will be sent letter by letter.
     {
       for (int i = 0; i < text.length(); i++) 
       {
           SendLetter(text[i]);
       }
-      wordGap();
+      wordGap();  //Seems to make seperation between sentences make more sense this way.
     }
 
-  void MorseSender::Flash (void)
+  void MorseSender::Flash (void)  //This is a wake-up to the operator to be ready for a transmission.
+                                  //Three bursts of flashes.
     {
 
       for (int x = 0;x<3;x++)
@@ -51,7 +62,8 @@
     }
 
 
-    void MorseSender::StartTX (void)
+    void MorseSender::StartTX (void)  //This is radio-standard V's for start of TX. 
+                                      //Found flashes were more useful, but left for the hell of it.
     {
       int SaveTemp=tempo;
       tempo=tempo/3;
@@ -66,7 +78,8 @@
       tempo=SaveTemp;
     }
 
-    void MorseSender::dot (void)
+    void MorseSender::dot (void)    //Sends a dot, but with an extended pause after each one. 
+                                    //May not be standard, but makes it more readable to my eye.
     {
        digitalWrite(LEDPIN, HIGH);
        delay(1 * tempo);
@@ -74,7 +87,8 @@
        delay(3 * tempo);
     }
     
-    void MorseSender::dash (void)
+    void MorseSender::dash (void) //Sends a dash - which is 5x longer than the dot. Again not standard
+                                  //But seems to make the morse readable.
     {
        digitalWrite(LEDPIN, HIGH);
        delay(5 * tempo);
@@ -82,17 +96,18 @@
        delay(3 * tempo);
     }
 
-    void MorseSender::charGap (void)
+    void MorseSender::charGap (void) //To be readable needs a longer gap after each character. This is then
+                                     //Double the gap between each of the symbols within each letter.
     {
        delay(3 * tempo);
     }
 
-    void MorseSender::wordGap (void)
+    void MorseSender::wordGap (void)  //A Gap at the end of each word, which is longer than between letters
     {
        delay(6 * tempo);
     }
 
-    void MorseSender::SendLetter (byte letter)
+    void MorseSender::SendLetter (byte letter)  //This is where the action happens.
     {
       
 #ifdef DEBUG
@@ -134,8 +149,8 @@
         if (letter == '8') {dash(); dash(); dash(); dot(); dot();charGap();}
         if (letter == '9') {dash(); dash(); dash(); dash(); dot();charGap();}
         if (letter == '0') {dash(); dash(); dash(); dash(); dash();charGap();}
-        if (letter == '.') {charGap();dot(); dash(); dot(); dash(); dot();dash();charGap();charGap();}
-        if (letter == '?') {charGap();dot(); dot(); dash(); dash(); dot();dot();charGap();charGap();}
+        if (letter == '.') {charGap();dot(); dash(); dot(); dash(); dot();dash();charGap();charGap();}  //Extra Gap in the front, seems to make it easier to read
+        if (letter == '?') {charGap();dot(); dot(); dash(); dash(); dot();dot();charGap();charGap();}   //Extra Gap in the front, seems to make it easier to read
         if (letter == ' ') {wordGap();}                        
  }
 
