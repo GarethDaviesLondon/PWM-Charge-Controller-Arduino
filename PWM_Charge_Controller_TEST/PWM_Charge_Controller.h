@@ -1,16 +1,14 @@
-//28th April 2018, Gareth Davies
-
 
 #define WAIT_TIME 2000 //Used in testing PWM waveform generation
 
-#define TARGET  14.00
-#define HYSTGAP  0.50
+#define TARGET  13.50
+#define HYSTGAP  0.30
 
 //These define the resistor values used in the voltage sensing potentiameters, this will be scaled to 1-5V
 #define SOLARPOT_HIGHSIDE 680
-#define SOLARPOT_LOWSIDE  101
+#define SOLARPOT_LOWSIDE  97
 #define BATTPOT_HIHGSIDE  680
-#define BATTPOT_LOWSIDE   230
+#define BATTPOT_LOWSIDE   220
 
 /*
 The frequency of the PWM signal on most pins is approximately 490 Hz. On the Uno and similar boards, pins 5 and 6

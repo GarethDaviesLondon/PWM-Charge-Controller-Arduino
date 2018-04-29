@@ -2,13 +2,8 @@
 
 #include <Arduino.h>
 #include "PWMLibs.h"
-#include "MorseSender.h"
-MorseSender CC_Morse(13); //This is a cludge because I cannot figure out how to pass the global Morse either in a constructor or just use the global
 
-/*  28th April 2018
- *  Gareth Davies
- *  
- *  Library implements three classes 
+/* Library implements three classes 
  *  
  *  ChargePumpPWM sets up the anti-phase PWM for the on-board charge pump, required to get high
  *  side MOSFET firing.
@@ -200,7 +195,6 @@ int VoltageSensor::ADValue (void)
                   PulseWidth =0;
                   analogWrite (PWMPin,PulseWidth);
                   state=0;
-        
   #ifdef DEBUG
     Serial.print("Charger Mode: ");
     Serial.print(state);
@@ -213,7 +207,6 @@ int VoltageSensor::ADValue (void)
                 PulseWidth=255;
                 analogWrite (PWMPin,PulseWidth);
                 state=2;
-                
    #ifdef DEBUG
     Serial.print("Charger Mode: ");
     Serial.print(state);
@@ -234,14 +227,12 @@ int VoltageSensor::ADValue (void)
                   * The Stop and Hysterisis parts of an implementation will prevent over charging.
                   * 
                   */
-                  //PulseWidth= (int) (255 * (VoltageGap/1.2) ); 
-                  PulseWidth= (int) (255 * VoltageGap );
+                  PulseWidth= (int) (255 * (VoltageGap/1.2) ); 
                   
                   if (PulseWidth < 0) PulseWidth=0;     //Limit the PWM bottom end
                   if (PulseWidth > 255) PulseWidth=255; //Limit the PWM top end
                   state=1;
                   analogWrite(PWMPin,PulseWidth);
-                  
    #ifdef DEBUG
     Serial.print("Charger Mode: ");
     Serial.print(state);
@@ -257,37 +248,23 @@ int VoltageSensor::ADValue (void)
         void ChargePWM::chargeHardOn (void)
         {
           ImplementWaveForm (2);
-          CC_Morse.SendString("n");
         }
         
         void ChargePWM::chargeOff (void)
         {
          ImplementWaveForm(0);
-         CC_Morse.SendString("f");
-        }
-
-        void ChargePWM::chargeOff (bool reporter)
-        {
-         if (reporter == true )
-         {
-          chargeOff();
-          return;
-         }
-          ImplementWaveForm(0);
         }
         
         void ChargePWM::chargeTrickle (float VG)
         {
           VoltageGap=VG;
           ImplementWaveForm(1);
-          CC_Morse.Blip();
-          CC_Morse.SendString((String)PulseWidth);
         }
         
         void ChargePWM::Suspend (void)
         {
           statestore=state;
-          chargeOff(false);
+          chargeOff();
         }
         
         void ChargePWM::Resume (void)

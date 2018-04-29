@@ -1,15 +1,11 @@
 
-//#define DEBUG   //Used to trigger debug loops and communications etc. Set to false for prodcution mode
+#define DEBUG   //Used to trigger debug loops and communications etc. Set to false for prodcution mode
 #include <Arduino.h>
 #include <LowPower.h> //Available from https://github.com/rocketscream/Low-Power
 #include "PWM_Charge_Controller.h"
 #include "PWMLibs.h"
-#include "MorseSender.h"
 
 /* PWM Charge Controller Sketch.
- *  
- *  28th April 2018
- *  Gareth Davies
  * 
  * Controls the Arduino to charge a Lead Acid Cell. Circuit diagram is available in the GitHub project
  * and Also on EasyEDA.
@@ -38,7 +34,6 @@
 ChargePumpPWM Mosfet_Gate_Driver (CHARGEPUMP_PWM_A,CHARGEPUMP_PWM_B); //Definitions of pins are found in PWM_Charge_Controller.h
 VoltageSensor VBat (A0,BATTPOT_HIHGSIDE,BATTPOT_LOWSIDE);
 VoltageSensor VSolar(A1,SOLARPOT_HIGHSIDE,SOLARPOT_LOWSIDE);
-MorseSender Morse(13);
 ChargePWM Charger(CHARGEWAVEFORM);
 
 float BatVoltage;
@@ -47,28 +42,19 @@ float SolarVoltage;
 void setup() {
 
 #ifdef DEBUG
-      Serial.begin(57600);     //Enable serial monitor line
+      Serial.begin(9600);     //Enable serial monitor line
       Serial.println("Debug Enabled");
 #endif
 
-//On Startup/Reset report the voltages on input and output.
-   BatVoltage = VBat.volts();
-   SolarVoltage = VSolar.volts();
-   Morse.Flash();
-   Morse.SendString("BAT");
-   Morse.SendString((String)BatVoltage);
-   Morse.SendString("SOL");
-   Morse.SendString((String)SolarVoltage);
-//
-
-  doChargeWake(); //StartUp the PWM Waveforms
+  doChargeWake();
 }
 
 void loop()
 {
-  ChargeLoop();
+  //ChargeLoop();
   // If we've returned then we're undervoltage detected between Solar and Battery.
-  PauseLoop();
+  //PauseLoop();
+  TestLoop();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -76,6 +62,29 @@ void loop()
 //This puts a longer delay between sampling
 //And makes calls to reduce power consumption of the board
 ///////////////////////////////////////////////////////////////
+
+void TestLoop()
+{
+  Mosfet_Gate_Driver.On();
+  BatVoltage = VBat.volts();
+  SolarVoltage = VSolar.volts();
+  Serial.print(BatVoltage);
+  Serial.print("V Solar ");
+  Serial.print(SolarVoltage);
+  Serial.println("V");
+  Serial.println("Pin 5 High");
+  digitalWrite(5,HIGH);
+  delay(3000);
+  BatVoltage = VBat.volts();
+  SolarVoltage = VSolar.volts();
+  Serial.print(BatVoltage);
+  Serial.print("V Solar ");
+  Serial.print(SolarVoltage);
+  Serial.println("V");
+  Serial.println("Pin 5 LOW");
+  digitalWrite(5,LOW);
+  delay(3000);
+}
 
 void PauseLoop()
 {
@@ -191,7 +200,7 @@ bool doPWMwithHysteresis(bool H)
   {
 
 #ifdef DEBUG   
-      Serial.print(" No Hysteresis and below target voltage so do PWM ");
+      Serial.print(" No Hysteresis and below target voltage PWM ");
  #endif
       Charger.chargeTrickle(TARGET-BatVoltage+0.5); //The 0.5 is here to make sure the PWM doesn't fade away before reaching voltage
                                                     //The algorithm goes into Hysterisis mode at target so this is safe.
@@ -220,7 +229,6 @@ bool doPWMwithHysteresis(bool H)
       Serial.print(" Hysteresis means Charge off ");
 #endif
           Charger.chargeOff();
-          Morse.SendString("Y");
 
      }
      return (Hysteresis);

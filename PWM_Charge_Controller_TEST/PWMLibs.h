@@ -1,7 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  28th April 2018, Gareth Davies
-//
 //  Charge pump class handles the initialisation of the charge pump
 //  Sets the registers etc.
 //  Based on tutorial from Julian Ilett 
@@ -41,12 +39,10 @@ class ChargePWM {
         int PulseWidth;
         float VoltageGap;      
         void ImplementWaveForm (int desiredState);
-
   public:
         ChargePWM (int);
         void chargeHardOn (void);
         void chargeOff (void);
-        void chargeOff (bool);
         void chargeTrickle (float);
         void Suspend (void);
         void Resume (void);
