@@ -220,7 +220,7 @@ bool doPWMwithHysteresis(bool H)
       Serial.print(" Hysteresis means Charge off ");
 #endif
           Charger.chargeOff();
-          Morse.SendString("HYST");
+          Morse.SendString("Y");
 
      }
      return (Hysteresis);

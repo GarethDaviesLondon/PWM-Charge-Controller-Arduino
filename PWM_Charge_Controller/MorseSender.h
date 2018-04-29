@@ -16,6 +16,7 @@ class MorseSender {
     void SendLetter(byte letter);
     void StartTX(void);
     void Flash(void);
+    void Blip(void);
 
   private:
     int LEDPIN;

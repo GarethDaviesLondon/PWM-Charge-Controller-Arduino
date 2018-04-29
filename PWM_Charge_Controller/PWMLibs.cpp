@@ -200,7 +200,7 @@ int VoltageSensor::ADValue (void)
                   PulseWidth =0;
                   analogWrite (PWMPin,PulseWidth);
                   state=0;
-                  CC_Morse.SendString("off");
+        
   #ifdef DEBUG
     Serial.print("Charger Mode: ");
     Serial.print(state);
@@ -213,7 +213,7 @@ int VoltageSensor::ADValue (void)
                 PulseWidth=255;
                 analogWrite (PWMPin,PulseWidth);
                 state=2;
-                CC_Morse.SendString("on");
+                
    #ifdef DEBUG
     Serial.print("Charger Mode: ");
     Serial.print(state);
@@ -241,7 +241,7 @@ int VoltageSensor::ADValue (void)
                   if (PulseWidth > 255) PulseWidth=255; //Limit the PWM top end
                   state=1;
                   analogWrite(PWMPin,PulseWidth);
-                  CC_Morse.SendString("PWM");
+                  
    #ifdef DEBUG
     Serial.print("Charger Mode: ");
     Serial.print(state);
@@ -257,23 +257,37 @@ int VoltageSensor::ADValue (void)
         void ChargePWM::chargeHardOn (void)
         {
           ImplementWaveForm (2);
+          CC_Morse.SendString("n");
         }
         
         void ChargePWM::chargeOff (void)
         {
          ImplementWaveForm(0);
+         CC_Morse.SendString("f");
+        }
+
+        void ChargePWM::chargeOff (bool reporter)
+        {
+         if (reporter == true )
+         {
+          chargeOff();
+          return;
+         }
+          ImplementWaveForm(0);
         }
         
         void ChargePWM::chargeTrickle (float VG)
         {
           VoltageGap=VG;
           ImplementWaveForm(1);
+          CC_Morse.Blip();
+          CC_Morse.SendString((String)PulseWidth);
         }
         
         void ChargePWM::Suspend (void)
         {
           statestore=state;
-          chargeOff();
+          chargeOff(false);
         }
         
         void ChargePWM::Resume (void)

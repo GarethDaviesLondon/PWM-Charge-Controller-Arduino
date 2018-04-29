@@ -46,6 +46,7 @@ class ChargePWM {
         ChargePWM (int);
         void chargeHardOn (void);
         void chargeOff (void);
+        void chargeOff (bool);
         void chargeTrickle (float);
         void Suspend (void);
         void Resume (void);

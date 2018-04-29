@@ -61,6 +61,18 @@
       }
     }
 
+  void MorseSender::Blip (void)  //This is a wake-up to the operator to be ready for a transmission.
+                                  //Three bursts of flashes.
+    {
+        for (int i = 0; i < 20; i++)
+        { 
+          digitalWrite(LEDPIN, HIGH);
+          delay(25);
+          digitalWrite(LEDPIN, LOW);
+          delay(25);
+        }
+      delay(250);
+    }
 
     void MorseSender::StartTX (void)  //This is radio-standard V's for start of TX. 
                                       //Found flashes were more useful, but left for the hell of it.

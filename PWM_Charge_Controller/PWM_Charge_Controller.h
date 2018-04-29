@@ -3,8 +3,8 @@
 
 #define WAIT_TIME 2000 //Used in testing PWM waveform generation
 
-#define TARGET  13.75
-#define HYSTGAP  0.40
+#define TARGET  14.00
+#define HYSTGAP  0.50
 
 //These define the resistor values used in the voltage sensing potentiameters, this will be scaled to 1-5V
 #define SOLARPOT_HIGHSIDE 680
